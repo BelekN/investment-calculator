@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Калькулятор инвестиционной привлекательности</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="page-header">
+      <div>
+        <h1 data-i18n="appTitle">Калькулятор инвестиционной привлекательности</h1>
+        <p data-i18n="appSubtitle">NPV, IRR, срок окупаемости — быстрая оценка, стоит ли вкладывать деньги</p>
+      </div>
+      <div class="controls">
+        <div class="segmented" id="lang-switch">
+          <button type="button" data-lang="ru" class="active">RU</button>
+          <button type="button" data-lang="ky">KG</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <div class="segmented" id="theme-switch">
+          <button type="button" data-theme-choice="auto" class="active" data-i18n="themeAuto">Авто</button>
+          <button type="button" data-theme-choice="light" data-i18n="themeLight">Светлая</button>
+          <button type="button" data-theme-choice="dark" data-i18n="themeDark">Тёмная</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2 data-i18n="inputsTitle">Исходные данные</h2>
+
+        <div class="field">
+          <label for="capex" data-i18n="capexLabel">Первоначальные инвестиции (CAPEX)</label>
+          <div class="field-row">
+            <input type="number" id="capex" min="0" step="1" value="1000000" />
+            <select id="currency" class="currency-select">
+              <option value="KGS" data-i18n="currencyKGS">сом</option>
+              <option value="USD" data-i18n="currencyUSD">$</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="rate" data-i18n="rateLabel">Ставка дисконтирования, %</label>
+          <input type="number" id="rate" min="0" max="100" step="0.1" value="15" />
+        </div>
+
+        <div class="field">
+          <label for="horizon" data-i18n="horizonLabel">Горизонт планирования, лет</label>
+          <select id="horizon">
+            <!-- заполняется JS: 1..10 -->
+          </select>
+        </div>
+
+        <div class="field">
+          <label data-i18n="cashflowsTitle">Денежные потоки по годам</label>
+          <p class="cashflows-hint" data-i18n="cashflowsHint">Введите ожидаемый чистый денежный поток за каждый год (может быть отрицательным)</p>
+          <div class="cashflow-grid" id="cashflow-grid">
+            <!-- заполняется JS -->
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="resultsTitle">Результаты</h2>
+        <div class="results-grid" id="results-grid">
+          <!-- заполняется JS -->
+        </div>
+      </section>
+
+      <section class="card verdict-card" id="verdict-card">
+        <h2 data-i18n="verdictTitle">Вывод</h2>
+        <p class="verdict-text" id="verdict-text"></p>
+      </section>
+
+      <section class="card">
+        <h2 data-i18n="chartTitle">Накопленный денежный поток по годам</h2>
+        <div class="chart-wrap">
+          <canvas id="cashflow-chart"></canvas>
+        </div>
+      </section>
+    </main>
+
+    <p class="disclaimer" data-i18n="disclaimer">Инструмент даёт приблизительную оценку и не является финансовой консультацией.</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
+  <script src="translations.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
