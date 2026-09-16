@@ -76,6 +76,16 @@
             <!-- заполняется JS -->
           </div>
         </div>
+
+        <div class="field">
+          <div class="label-row">
+            <label for="residual" data-i18n="residualLabel">Остаточная стоимость актива в конце срока (опционально)</label>
+            <button type="button" class="tooltip-btn">?
+              <span class="tooltip-bubble" data-i18n="residualTooltip">Если после расчётного периода у вас остаётся ценный актив — например, завод, здание или оборудование, — его можно продать или просто учесть как ценность на конец срока. Укажите её здесь: она добавится к доходу последнего года при расчёте NPV, IRR и PI. На срок окупаемости не влияет, так как это не «отбитые» за счёт операций деньги, а стоимость самого актива.</span>
+            </button>
+          </div>
+          <input type="text" id="residual" inputmode="numeric" value="0" />
+        </div>
       </section>
 
       <section class="card">

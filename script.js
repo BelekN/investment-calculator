@@ -318,13 +318,21 @@
   function compute() {
     var capex = parseGroupedNumber(document.getElementById("capex").value);
     var rate = parseFloat(document.getElementById("rate").value) || 0;
+    var residual = parseGroupedNumber(document.getElementById("residual").value);
     var flows = state.cashflows.slice(0, state.horizon);
 
-    var npvValue = npv(rate, capex, flows);
-    var irrValue = irr(capex, flows);
+    // Остаточная стоимость актива добавляется к доходу последнего года —
+    // но только для NPV/IRR/PI, срок окупаемости считаем по чистым операционным потокам
+    var flowsWithResidual = flows.slice();
+    if (residual && flowsWithResidual.length) {
+      flowsWithResidual[flowsWithResidual.length - 1] += residual;
+    }
+
+    var npvValue = npv(rate, capex, flowsWithResidual);
+    var irrValue = irr(capex, flowsWithResidual);
     var paybackValue = simplePayback(capex, flows);
     var discPaybackValue = discountedPayback(rate, capex, flows);
-    var piValue = profitabilityIndex(rate, capex, flows);
+    var piValue = profitabilityIndex(rate, capex, flowsWithResidual);
 
     setMetric("npv", formatMoney(npvValue), npvValue >= 0);
     setMetric("irr", irrValue === null ? "—" : formatPercent(irrValue), irrValue !== null && irrValue >= rate);
@@ -333,7 +341,7 @@
     setMetric("pi", piValue === null ? "—" : piValue.toFixed(2), piValue !== null && piValue >= 1);
 
     renderVerdict(npvValue, irrValue, rate, paybackValue);
-    renderChart(capex, flows, rate);
+    renderChart(capex, flows, rate, residual);
   }
 
   function setMetric(key, text, isGood) {
@@ -377,7 +385,7 @@
     }
   }
 
-  function renderChart(capex, flows, rate) {
+  function renderChart(capex, flows, rate, residual) {
     var labels = ["0"];
     var cumulative = [-capex];
     var running = -capex;
@@ -385,6 +393,9 @@
       running += flows[i];
       cumulative.push(running);
       labels.push(String(i + 1));
+    }
+    if (residual && cumulative.length > 1) {
+      cumulative[cumulative.length - 1] += residual;
     }
 
     var ctx = document.getElementById("cashflow-chart").getContext("2d");
@@ -431,6 +442,10 @@
 
   function bindControls() {
     document.getElementById("capex").addEventListener("input", function (e) {
+      formatThousandsInput(e.target);
+      compute();
+    });
+    document.getElementById("residual").addEventListener("input", function (e) {
       formatThousandsInput(e.target);
       compute();
     });
