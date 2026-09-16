@@ -140,15 +140,7 @@
       var tipBtn = document.createElement("button");
       tipBtn.type = "button";
       tipBtn.className = "tooltip-btn";
-      tipBtn.textContent = "?";
-      tipBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        var wasOpen = tipBtn.classList.contains("open");
-        document.querySelectorAll(".tooltip-btn.open").forEach(function (b) {
-          b.classList.remove("open");
-        });
-        if (!wasOpen) tipBtn.classList.add("open");
-      });
+      tipBtn.appendChild(document.createTextNode("?"));
 
       var bubble = document.createElement("span");
       bubble.className = "tooltip-bubble";
@@ -169,10 +161,28 @@
     });
   }
 
-  document.addEventListener("click", function () {
+  // Не даём подсказке вылезти за правый/левый край экрана (важно на телефоне)
+  function keepTooltipInViewport(tipBtn) {
+    var bubble = tipBtn.querySelector(".tooltip-bubble");
+    if (!bubble) return;
+    bubble.style.left = "0";
+    var rect = bubble.getBoundingClientRect();
+    var overflowRight = rect.right - (window.innerWidth - 8);
+    if (overflowRight > 0) {
+      bubble.style.left = -overflowRight + "px";
+    }
+  }
+
+  document.addEventListener("click", function (e) {
+    var tipBtn = e.target.closest(".tooltip-btn");
+    var wasOpen = tipBtn && tipBtn.classList.contains("open");
     document.querySelectorAll(".tooltip-btn.open").forEach(function (b) {
       b.classList.remove("open");
     });
+    if (tipBtn && !wasOpen) {
+      tipBtn.classList.add("open");
+      keepTooltipInViewport(tipBtn);
+    }
   });
 
   // ===== Финансовые расчёты =====

@@ -171,6 +171,17 @@ body {
   margin-bottom: 6px;
 }
 
+.label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.label-row label {
+  margin-bottom: 0;
+}
+
 .field-row {
   display: flex;
   gap: 8px;
