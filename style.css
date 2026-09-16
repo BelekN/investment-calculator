@@ -176,7 +176,7 @@ body {
   gap: 8px;
 }
 
-input[type="number"], select {
+input[type="number"], input[type="text"], select {
   width: 100%;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
@@ -189,7 +189,7 @@ input[type="number"], select {
   transition: border-color 0.15s;
 }
 
-input[type="number"]:focus, select:focus {
+input[type="number"]:focus, input[type="text"]:focus, select:focus {
   border-color: var(--accent);
 }
 

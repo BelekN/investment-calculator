@@ -92,14 +92,14 @@
       label.setAttribute("for", "cf-" + i);
       label.textContent = t(state.lang, "yearLabel") + " " + (i + 1);
       var input = document.createElement("input");
-      input.type = "number";
-      input.step = "1";
+      input.type = "text";
+      input.inputMode = "numeric";
       input.id = "cf-" + i;
-      input.value = state.cashflows[i];
+      input.value = formatGroupedDisplay(state.cashflows[i]);
       input.dataset.index = i;
       input.addEventListener("input", function (e) {
         var idx = parseInt(e.target.dataset.index, 10);
-        state.cashflows[idx] = parseFloat(e.target.value) || 0;
+        state.cashflows[idx] = formatThousandsInput(e.target);
         compute();
       });
       item.appendChild(label);
@@ -257,6 +257,34 @@
 
   // ===== Форматирование =====
 
+  function formatGroupedDisplay(num) {
+    var raw = String(Math.round(num || 0));
+    var negative = raw.charAt(0) === "-";
+    var digits = negative ? raw.slice(1) : raw;
+    var grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    return (negative ? "-" : "") + grouped;
+  }
+
+  function parseGroupedNumber(str) {
+    var cleaned = String(str).replace(/[^\d-]/g, "");
+    var num = parseInt(cleaned, 10);
+    return isNaN(num) ? 0 : num;
+  }
+
+  // Переформатирует поле ввода "на лету" (пробелы через каждые 3 цифры), сохраняя позицию курсора
+  function formatThousandsInput(input) {
+    var raw = input.value;
+    var cursorFromEnd = raw.length - input.selectionStart;
+    var negative = raw.trim().charAt(0) === "-";
+    var digits = raw.replace(/[^\d]/g, "").replace(/^0+(?=\d)/, "");
+    var grouped = digits.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    var formatted = (negative && digits.length ? "-" : "") + grouped;
+    input.value = formatted;
+    var newPos = Math.max(0, formatted.length - cursorFromEnd);
+    input.setSelectionRange(newPos, newPos);
+    return digits.length ? parseInt(digits, 10) * (negative ? -1 : 1) : 0;
+  }
+
   function currencySymbol() {
     return state.currency === "USD" ? t(state.lang, "currencyUSD") : t(state.lang, "currencyKGS");
   }
@@ -278,7 +306,7 @@
   // ===== Основной пересчёт =====
 
   function compute() {
-    var capex = parseFloat(document.getElementById("capex").value) || 0;
+    var capex = parseGroupedNumber(document.getElementById("capex").value);
     var rate = parseFloat(document.getElementById("rate").value) || 0;
     var flows = state.cashflows.slice(0, state.horizon);
 
@@ -392,7 +420,10 @@
   // ===== Инициализация =====
 
   function bindControls() {
-    document.getElementById("capex").addEventListener("input", compute);
+    document.getElementById("capex").addEventListener("input", function (e) {
+      formatThousandsInput(e.target);
+      compute();
+    });
     document.getElementById("rate").addEventListener("input", compute);
     document.getElementById("currency").addEventListener("change", function (e) {
       state.currency = e.target.value;
